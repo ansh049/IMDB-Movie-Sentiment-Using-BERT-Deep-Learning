@@ -1,0 +1,389 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>AI Movie Review Sentiment Analyzer</title>
+
+    <!-- Google Font -->
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap"
+        rel="stylesheet">
+
+    <!-- Font Awesome -->
+    <link rel="stylesheet"
+        href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
+
+    <!-- Animate.css -->
+    <link rel="stylesheet"
+        href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"/>
+
+    <!-- AOS -->
+    <link href="https://unpkg.com/aos@2.3.4/dist/aos.css" rel="stylesheet">
+
+    <!-- Main CSS -->
+    <link rel="stylesheet"
+        href="{{ url_for('static',filename='style.css') }}">
+
+</head>
+
+<body>
+
+    <!-- Particle Background -->
+    <div id="particles-js"></div>
+
+    <!-- Floating Gradient -->
+    <div class="blob blob1"></div>
+    <div class="blob blob2"></div>
+    <div class="blob blob3"></div>
+
+    <!-- Navbar -->
+
+    <nav>
+
+        <div class="logo">
+
+            <i class="fa-solid fa-film"></i>
+
+            AI Sentiment
+
+        </div>
+
+        <div class="nav-buttons">
+
+            <button id="themeToggle">
+
+                <i class="fa-solid fa-moon"></i>
+
+            </button>
+
+        </div>
+
+    </nav>
+
+    <!-- Hero -->
+
+    <section class="hero">
+
+        <div class="hero-content animate__animated animate__fadeInDown">
+
+            <h1>
+
+                🎬 AI Movie Review Analyzer
+
+            </h1>
+
+            <p id="typing-text"></p>
+
+            <a href="#analyzer">
+
+                <button class="hero-btn">
+
+                    Start Analyzing
+
+                </button>
+
+            </a>
+
+        </div>
+
+    </section>
+
+    <!-- Analyzer -->
+
+    <section id="analyzer">
+
+        <div class="glass-card" data-aos="zoom-in">
+
+            <h2>
+
+                Analyze Movie Review
+
+            </h2>
+
+            <form method="POST" id="reviewForm">
+
+                <textarea
+
+                    id="review"
+
+                    name="review"
+
+                    placeholder="Write your movie review here..."
+
+                    required>{{ review }}</textarea>
+
+                <div class="bottom-tools">
+
+                    <span>
+
+                        <i class="fa-solid fa-keyboard"></i>
+
+                        Characters :
+
+                        <span id="count">
+
+                            0
+
+                        </span>
+
+                    </span>
+
+                    <div>
+
+                        <button type="button" id="voiceBtn">
+
+                            🎤
+
+                        </button>
+
+                        <button type="button" id="clearBtn">
+
+                            🗑
+
+                        </button>
+
+                        <button type="button" id="copyBtn">
+
+                            📋
+
+                        </button>
+
+                    </div>
+
+                </div>
+
+                <div class="examples">
+
+                    <button type="button"
+
+                        class="example"
+
+                        data-review="This movie was absolutely amazing. I loved every moment of it.">
+
+                        Positive Example
+
+                    </button>
+
+                    <button type="button"
+
+                        class="example"
+
+                        data-review="Worst movie ever. Waste of money and time.">
+
+                        Negative Example
+
+                    </button>
+
+                    <button type="button"
+
+                        id="randomExample">
+
+                        🎲 Random
+
+                    </button>
+
+                </div>
+
+                <button
+
+                    type="submit"
+
+                    class="analyze">
+
+                    <i class="fa-solid fa-wand-magic-sparkles"></i>
+
+                    Analyze Sentiment
+
+                </button>
+
+            </form>
+
+            <!-- Loader -->
+
+            <div id="loader">
+
+                <div class="spinner"></div>
+
+                <h3>
+
+                    AI is reading your review...
+
+                </h3>
+
+                <div class="loading-bar">
+
+                    <span></span>
+
+                </div>
+
+            </div>
+
+            <!-- Result -->
+
+            {% if sentiment %}
+
+            <div class="result-card animate__animated animate__fadeIn">
+
+                {% if sentiment=="Positive" %}
+
+                <div class="emoji positive">
+
+                    😍
+
+                </div>
+
+                {% else %}
+
+                <div class="emoji negative">
+
+                    😔
+
+                </div>
+
+                {% endif %}
+
+                <h2>
+
+                    {{ sentiment }}
+
+                </h2>
+
+                <div class="progress">
+
+                    <div
+
+                        class="progress-fill"
+
+                        style="width:{{ confidence*100 }}%;">
+
+                    </div>
+
+                </div>
+
+                <h3>
+
+                    {{ "%.2f"|format(confidence*100)}}%
+
+                    Confidence
+
+                </h3>
+
+                <div class="stats">
+
+                    <div>
+
+                        <span>Words</span>
+
+                        <h4 id="wordCount"></h4>
+
+                    </div>
+
+                    <div>
+
+                        <span>Characters</span>
+
+                        <h4 id="charCount"></h4>
+
+                    </div>
+
+                    <div>
+
+                        <span>Reading Time</span>
+
+                        <h4 id="readingTime"></h4>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+            {% endif %}
+
+        </div>
+
+    </section>
+
+    <!-- History -->
+
+    <section class="history-section">
+
+        <div class="history-card">
+
+            <h2>
+
+                Recent Reviews
+
+            </h2>
+
+            <ul id="historyList">
+
+            </ul>
+
+        </div>
+
+    </section>
+
+    <!-- Toast -->
+
+    <div id="toast">
+
+        Review Copied!
+
+    </div>
+
+    <!-- Footer -->
+
+    <footer>
+
+        <h3>
+
+            Built with ❤️ using
+
+        </h3>
+
+        <div>
+
+            🤗 HuggingFace |
+
+            🧠 Transformers |
+
+            🔥 PyTorch |
+
+            🐍 Flask
+
+        </div>
+
+    </footer>
+
+    <!-- Libraries -->
+
+    <script src="https://cdn.jsdelivr.net/npm/particles.js"></script>
+
+    <script>
+
+        particlesJS.load(
+            'particles-js',
+            'https://cdn.jsdelivr.net/gh/VincentGarreau/particles.js/particles.json'
+        );
+
+    </script>
+
+    <script src="https://unpkg.com/aos@2.3.4/dist/aos.js"></script>
+
+    <script>
+
+        AOS.init();
+
+    </script>
+
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.3/dist/confetti.browser.min.js"></script>
+
+    <script src="{{ url_for('static',filename='script.js') }}"></script>
+
+</body>
+
+</html>
